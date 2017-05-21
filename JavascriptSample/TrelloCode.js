@@ -1,6 +1,7 @@
-﻿var items =  {   "Fruits" : ["Mango", "Apple"],
-                 "Vegetables" : ["Onion", "Tomato"]
-             };
+﻿var items = {
+    "Fruits": ["Mango", "Apple"],
+    "Vegetables" : ["Onion", "Tomato"]
+};
 
 function onLoad() {
     var lists = document.getElementById('lists');
@@ -71,7 +72,7 @@ function addList() {
         onLoad();
     }
     else {
-        alert('The list name already exists');
+        alert('The list name already exists.');
     }
 
 }
@@ -97,7 +98,7 @@ function removeList(event) {
         onLoad();
     }
     else {
-        alert('There should be atleast 2 lists');
+        alert('There should be atleast two lists.');
     }
 }
 
