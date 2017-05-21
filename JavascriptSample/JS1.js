@@ -1,6 +1,6 @@
 ﻿var items =  {   "Fruits" : ["Mango", "Apple"],
-"Vegetables" : ["Onion", "Tomato"]
-};
+                 "Vegetables" : ["Onion", "Tomato"]
+             };
 
 function onLoad() {
     var lists = document.getElementById('lists');
@@ -26,8 +26,8 @@ function onLoad() {
 
             listItem.addEventListener('dragstart', dragDropEvents.dragStarted);
             listItem.addEventListener('drop', dragDropEvents.dropping);
-            listItem.addEventListener('dragenter', dragDropEvents.dragEnter);
-            listItem.addEventListener('dragover', dragDropEvents.dragOver);
+            listItem.addEventListener('dragenter', dragDropEvents.preventDrag);
+            listItem.addEventListener('dragover', dragDropEvents.preventDrag);
 
             listItem.appendChild(document.createTextNode(item[j]));
             listItems.appendChild(listItem);
@@ -50,7 +50,6 @@ function onLoad() {
         lists.appendChild(list);
     }
 }
-
 
 // Called when new item is added to any list
 function addItem(event) {
@@ -102,8 +101,6 @@ function removeList(event) {
     }
 }
 
-
-
 //Contains drag and drop events
 
 var dragDropEvents = {
@@ -120,12 +117,7 @@ var dragDropEvents = {
         event.dataTransfer.effectAllowed = 'move';
     },
 
-    dragOver : function (event) {
-        event.preventDefault();
-        return false;
-    },
-
-    dragEnter : function (event) {
+    preventDrag : function (event) {
         event.preventDefault();
     },
 
@@ -139,7 +131,6 @@ var dragDropEvents = {
         onLoad();
     }
 }
-
 
 //Creates and adds a new button
 function addButton(id, value, clickFunction, parent) {
