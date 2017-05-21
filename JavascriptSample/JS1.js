@@ -12,19 +12,10 @@ function onLoad() {
         list.appendChild(document.createTextNode(i));
 
         //to remove a list
-        var removeListbtn = document.createElement('input');
-        removeListbtn.type = 'button';
-        removeListbtn.value = "Remove List";
-        removeListbtn.id = i + '_remove';
-        removeListbtn.addEventListener('click', removeList);
-        list.appendChild(removeListbtn);
+        addButton(i + '_remove', "Remove List", removeList, list);
 
         var item = items[i];
         var listItems = document.createElement('ul');
-        listItems.addEventListener('drop', dropping);
-        listItems.addEventListener('dragenter', dragEnter);
-        listItems.addEventListener('dragover', dragOver);
-        //listItems.title = i;
 
         //to add items into an empty list
         for(var j in item)
@@ -33,19 +24,16 @@ function onLoad() {
             listItem.id = i + '_' + item[j];
             listItem.draggable = "true";
 
-            listItem.addEventListener('dragstart', dragStarted);
+            listItem.addEventListener('dragstart', dragDropEvents.dragStarted);
+            listItem.addEventListener('drop', dragDropEvents.dropping);
+            listItem.addEventListener('dragenter', dragDropEvents.dragEnter);
+            listItem.addEventListener('dragover', dragDropEvents.dragOver);
 
             listItem.appendChild(document.createTextNode(item[j]));
             listItems.appendChild(listItem);
 
             //Adding remove button for every list item
-            var removeItemBtn = document.createElement('input');
-            removeItemBtn.type = 'button';
-            removeItemBtn.id = i + '_' + item[j] + '_remove';
-            removeItemBtn.value = 'Remove';
-            removeItemBtn.addEventListener('click', removeItem);
-
-            listItems.appendChild(removeItemBtn);
+            addButton(i + '_' + item[j] + '_remove', "Remove", removeItem, listItems);
         }
         list.appendChild(listItems);
 
@@ -54,16 +42,11 @@ function onLoad() {
         addItemsTextbox.type = 'text';
         addItemsTextbox.placeholder = 'Add Items';
         addItemsTextbox.id = i + "_textbox";
-
-        //Button to add a new item to a list. Placed at the end of every list 
-        var addItemButton = document.createElement('input');        
-        addItemButton.type = 'button';
-        addItemButton.value = 'Add';
-        addItemButton.id = i + "_button";
-        addItemButton.addEventListener('click', addItem);
-
         list.appendChild(addItemsTextbox);
-        list.appendChild(addItemButton);
+
+        //Button to add a new item to a list. Placed at the end of every 
+        addButton(i + '_button', "Add", addItem, list);
+
         lists.appendChild(list);
     }
 }
@@ -83,9 +66,15 @@ function addItem(event) {
 function addList() {
    
     var listName = document.getElementById("text2").value;
-    document.getElementById("text2").value = "";
-    items[listName] = [];
-    onLoad();
+    if (!items[listName]) {
+        document.getElementById("text2").value = "";
+        items[listName] = [];
+        onLoad();
+    }
+    else {
+        alert('The list name already exists');
+    }
+
 }
 
 //Called when any item of any list is removed
@@ -99,40 +88,67 @@ function removeItem(event) {
     onLoad();
 }
 
+//Called when a list is removed
 function removeList(event) {
     var id = event.target.id;
     var listName = id.split('_')[0];
-    delete items[listName];
-    onLoad();
+    var childCount = document.getElementById('lists').childElementCount;
+    if (childCount > 2) {
+        delete items[listName];
+        onLoad();
+    }
+    else {
+        alert('There should be atleast 2 lists');
+    }
 }
 
-//Called when the dragging of any item in a list starts
-function dragStarted(event) {
-    var id = event.target.id;
-    var listName = id.split('_')[0];
-    var listItem = id.split('_')[1];
 
-    var index = items[listName].indexOf(listItem);
-    items[listName].splice(index, 1);
 
-    event.dataTransfer.setData('text', listItem);
-    event.dataTransfer.effectAllowed = 'move';
+//Contains drag and drop events
+
+var dragDropEvents = {
+
+    dragStarted : function dragStarted(event) {
+        var id = event.target.id;
+        var listName = id.split('_')[0];
+        var listItem = id.split('_')[1];
+
+        var index = items[listName].indexOf(listItem);
+        items[listName].splice(index, 1);
+
+        event.dataTransfer.setData('text', listItem);
+        event.dataTransfer.effectAllowed = 'move';
+    },
+
+    dragOver : function (event) {
+        event.preventDefault();
+        return false;
+    },
+
+    dragEnter : function (event) {
+        event.preventDefault();
+    },
+
+    dropping : function (event) {
+        var item = event.dataTransfer.getData('text');
+        var id = event.target.id;
+        var listName = id.split('_')[0];
+        var listItem = id.split('_')[0];
+        var index = items[listName].indexOf(listItem);
+        items[listName].splice(index, 0, item);
+        onLoad();
+    }
 }
 
-function dragOver(event) {
-    event.preventDefault();
-    return false;
-}
 
-function dragEnter(event) {
-    event.preventDefault();
-}
+//Creates and adds a new button
+function addButton(id, value, clickFunction, parent) {
 
-//Called when the list item is dropped into another list
-function dropping(event) {
-    var item = event.dataTransfer.getData('text');
-    var id = event.target.id;
-    var listName = id.split('_')[0];
-    items[listName].push(item);
-    onLoad();
+    var btn = document.createElement('input');
+    btn.type = 'button';
+    btn.id = id;
+    btn.value = value;
+    btn.addEventListener('click', clickFunction);
+
+    parent.appendChild(btn);
 }
